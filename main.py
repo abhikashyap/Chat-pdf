@@ -14,6 +14,7 @@ from qdrant_client.http.models import Distance, VectorParams
 
 st.set_page_config(layout="wide")
 load_dotenv()
+st.title("Chat with any pdf")
 OPENAI_API_KEY = st.sidebar.text_input("🔑 Enter your OpenAI API Key", type="password")
 if not OPENAI_API_KEY:
     st.warning("⚠️ Please enter your OpenAI API Key in the sidebar to use chat.")
@@ -47,7 +48,7 @@ else:
 chunk_size = st.sidebar.number_input("Chunk Size", value=1000)
 chunk_overlap = st.sidebar.number_input("Chunk Overlap", value=200)
 uploaded_file = st.sidebar.file_uploader("Upload a PDF", type="pdf")
-upload_btn = st.sidebar.button("Submit")
+upload_btn = st.sidebar.button("Prepare this PDF")
 
 if uploaded_file and upload_btn:
     if not selected_collection:
