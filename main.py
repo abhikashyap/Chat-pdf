@@ -15,8 +15,9 @@ from qdrant_client.http.models import Distance, VectorParams
 st.set_page_config(layout="wide")
 load_dotenv()
 OPENAI_API_KEY = st.sidebar.text_input("🔑 Enter your OpenAI API Key", type="password")
-if OPENAI_API_KEY:
-    st.sidebar.success("you can chat")
+if not OPENAI_API_KEY:
+    st.warning("⚠️ Please enter your OpenAI API Key in the sidebar to use chat.")
+    st.stop()
 qdrant_client = QdrantClient(
     url=os.getenv("QDRANT_URL"),
     api_key=os.getenv("QDRANT_API_KEY")
@@ -69,7 +70,7 @@ if uploaded_file and upload_btn:
                     vectors_config=VectorParams(size=3072, distance=Distance.COSINE),
                 )
 
-            embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+            embeddings = OpenAIEmbeddings(model="text-embedding-3-large",api_key=OPENAI_API_KEY)
             QdrantVectorStore.from_documents(
                 split_docs,
                 url=os.getenv("QDRANT_URL"),
@@ -93,12 +94,13 @@ with st.container():
 
 if go_btn and query and selected_collection:
     with st.spinner("Searching and generating answer..."):
-        embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+        embeddings = OpenAIEmbeddings(model="text-embedding-3-large",api_key=OPENAI_API_KEY)
         vectordb = QdrantVectorStore.from_existing_collection(
             url=os.getenv("QDRANT_URL"),
             api_key=os.getenv("QDRANT_API_KEY"),
             collection_name=selected_collection,
             embedding=embeddings
+            
         )
 
         results = vectordb.similarity_search(query=query)
@@ -119,7 +121,7 @@ if go_btn and query and selected_collection:
         Only answer based on the context. Point the user to the correct page number if needed."""
                 }
 
-        chat = ChatOpenAI(model="gpt-4.1-mini")
+        chat = ChatOpenAI(model="gpt-4.1-mini",api_key=OPENAI_API_KEY)
         response = chat.invoke([system_prompt] + st.session_state.messages[1:])
         st.session_state.messages.append({"role": "assistant", "content": response.content})
 
